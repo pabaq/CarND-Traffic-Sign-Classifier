@@ -1016,7 +1016,7 @@ Now let's see how the network performs on traffic sign images gathered from in t
 tf.reset_default_graph()
 with tf.Session(config=config) as session:
     lenet = Model()
-    lenet.restore(checkpoint="models/LeNet-5_Final.ckpt-57")
+    lenet.restore(checkpoint="models/LeNet-5_Final.ckpt-47")
     acc = lenet.evaluate(preprocess(x_test_new), y_test_new)
     print(f"\nAccuracy on new test signs: {acc * 100:.2f}%\n")            
     top_k_probs, top_k_preds = lenet.predict( preprocess(x_test_new), k=3)
@@ -1030,7 +1030,7 @@ The accuracy is quite low compared to the original test set, since some of the i
 and to challenge the network.
 ![][predictions]
 
-##Observations and improvements:
+## Observations and improvements:
 - In some cases the network is able to correctly predict partly occluded or polluted signs.
 - The network does a good job if the signs are centered, viewed from the front and do fill a major part of the area.
 - It has its problems with signs that are located outside of the center, viewed from a perspective or are far away.
