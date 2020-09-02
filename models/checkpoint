@@ -1,0 +1,2 @@
+model_checkpoint_path: "LeNet-5_Final.ckpt-50"
+all_model_checkpoint_paths: "LeNet-5_Final.ckpt-50"
