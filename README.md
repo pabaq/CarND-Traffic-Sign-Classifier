@@ -1,24 +1,38 @@
-# Traffic Sign Classifier
-Designing a neural network for the classification of traffic sign images. 
+This project is part of Udacity's [Self-Driving-Car Nanodegree][Course]. The project 
+resources and build instructions can be found [here][Project].
 
-The complete code can be found in the follwing modules:
+## Traffic sign classification with a convolutional neural network build with tensorflow
 
-- ``utilities.py``: helper functions for the loading, preprocessing and plotting of the data and the 
-    investigation results.
-- ``model.py``: defintion of a ``Model`` class, making the investigation of several
-    network architectures and parameter variations more comfortable.
-- ``layers.py``: the layer defintions of the investigated networks. 
+In this project we will train and validate several CNN architectures with the goal to 
+classify traffic sign images using the [German Traffic Sign Dataset][Dataset]. After the 
+training, we will try out the best architecture on random images of traffic signs that we 
+collected from the web.
 
-## Steps
+The complete code can be found in the following modules:
+
+- [``utilities.py``][utilities]: helper functions for the loading, preprocessing and 
+  plotting of the data and the investigation results.
+- [``model.py``][model]: defintion of a [``Model``][modelclass] class, making the 
+  investigation of several network architectures and parameter variations more comfortable.
+- [``layers.py``][layers]: the layer defintions of the investigated networks. 
+
+It is also possible to walk through the project using the [Traffic_Sign_Classifier jupyter 
+notebook][notebook] in this repository.
+
+The project consists of the following steps:
+
 1. Exploration of the available data set.
-2. The basic ``LeNet-5`` network.
-3. Investigation of the influence of several parameter variations and architectures on the network's performance.
+2. Initial investigation with the basic ``LeNet-5`` network.
+3. Investigation of the influence of several parameter variations and architectures on 
+   the network's performance.
 4. Training and testing of the final network.
 5. Predictions on new traffic sign images collected from the internet.
 
 ## 1. Exploration of the available data set
-The distributions of the training, validation and test data are comparable, however, they are 
-far from being uniform. Some classes are present much more frequent then others.
+The distributions of the [German Traffic Sign's][Dataset] training, validation and test data
+are comparable, however, they are far from being uniform. Some classes are present much 
+more frequent then others.
+
 ![][histogram]
 
 Let's have a look on the traffic sign classes.
@@ -71,18 +85,19 @@ Let's have a look on the traffic sign classes.
 |41       |  End of no passing
 |42       |  End of no passing by vehicles over 3.5 metric ...
 
-The images are of shape 32x32 in RGB color. They were taken under varying light conditions. 
-Some can easily be recognized, others are even hard to notice. We will preprocess these images in 
-one of the subsequent investigations pipelines.
+The images are of shape 32x32 in RGB color. They were taken under varying light 
+conditions. Some can easily be recognized, others are even hard to notice. We will 
+preprocess these images in one of the subsequent investigations pipelines.
 
 
-## 2. The basic ``LeNet-5`` network
+## 2. Initial investigation with the basic ``LeNet-5`` network
 ![][lenet5]
 
-The ``LeNet-5`` network presented [here][LenetPaper] is used as a starting point for the following
-investigations. We will build it by making use of the ``Model`` class defined in ``model.py`` 
-and the ``layers`` defined in ``layers.py``. The basic ``LeNet-5`` archictecture is defined as 
-follows: 
+The ``LeNet-5`` network presented in [Gradient-Based Learning Applied to Document 
+Recognition][LenetPaper] by Yann LeCun et al. is used as a starting point for the 
+following investigations. We will build it by making use of the [``Model``][modelclass] 
+class defined in [``model.py``][model] and the [``lenet5_rgb``][lenet5_rgb] layers defined 
+in [``layers.py``][layers]. The basic ``LeNet-5`` archictecture is defined as follows: 
 
 ```python
 # layers.py
@@ -133,13 +148,14 @@ lenet5_rgb = [
 It will take as input an image of shape ``32 x 32 x 3`` and its last layer will output the 
 43 traffic traffic sign ``logits``.
 
-The implemented methods of the ``Model`` class allow the building, training and subsequent 
-evaluation of the network. Let`s build basic ``LeNet-5`` and train it on the traffic sign 
-samples with the folowing first set of parameters:
+The implemented methods of the [``Model``][model] class allow the [``compiling``][model_compile],
+[``training``][model_train] and subsequent [``evaluation``][model_evaluate] of the network. Let`s
+build basic ``LeNet-5`` and train it on the traffic sign samples with the folowing first set of
+parameters:
 
 - **Training Variables Initializer**: Random Normal Initializer (with the defaults: mean=0, stddev=0.1)
 - **Dropout**: We will set the dropout in the Dense Layers inactive for the first training
-- **Training and Validation Data**: Let's use unprocessed data for the first training
+- **Training and Validation Data**: We will use unprocessed data for the first training
 - **Optimizer**: Gradient Descent
 - **Learning Rate**: 0.001
 - **Mini Batch Size**: 128
@@ -183,8 +199,9 @@ Let's go for the parameter variations.
 
 ## 3. Investigation of several parameter effects on the network's performance
 
-#### Optimizers
-As the first investigation we will vary the optimizer.
+### Optimizers
+In the first investigation we will vary the optimizers using ``Gradient Descent``, 
+``Adam`` and ``Adagrad``.
 
 ````python
 # Parameters
@@ -234,12 +251,13 @@ Epoch 30/30:   Train Loss: 1.4762   Train Acc: 0.6237   Valid Acc: 0.5317
 
 ![][optimizer]
 
-The ``Adam`` optimizer seems to make a pretty good job. We will use it as the default optimizer for the rest of 
-the project. 
+The ``Adam`` optimizer is doing a pretty good job. We will use it as the default 
+optimizer for the rest of the project. 
 
-#### Input Data Normalization
-Next let`s preprocess the input data. The function ``preprocess`` from ``utilities.py`` does this job for us. 
-It performs scaling and contrast limited adaptive histogram equalization ([CLAHE][Clahe]) on the input images.
+### Input Data Normalization
+Next let`s preprocess the input data. The function [``preprocess``][preprocess] in 
+[``utilities.py``][utilities] does this job for us. It performs scaling and contrast limited 
+adaptive histogram equalization ([CLAHE][Clahe]) on the input images.
 
 ````python
 def preprocess(x, scale='std', clahe=True):
@@ -272,14 +290,15 @@ def preprocess(x, scale='std', clahe=True):
     return x
 ````
 
-The output on the class samples shown above looks as follows:
+The output on the class samples shown above looks as follows: 
+
 ![][preprocessing]
 
 We can see that the edges and the content of the signs get highlighted independently of the 
-lightning situation in the original images. Let's investigate the effect of each of the preprocessing 
-parameters on the performance of the network. Since the output of the CLAHE operation is a gray image, 
-we will introduce ``lenet5_single_channel`` layers that can handle single channel input images. 
-All other layer parameters stay the same. 
+lightning situation in the original images. Let's investigate the effect of each of the 
+preprocessing parameters on the performance of the network. Since the output of the CLAHE 
+operation is a gray image, we will introduce [``lenet5_single_channel``][lenet5_single_channel]
+layers that can handle single channel input images. All other layer parameters stay the same. 
 
 ````python
 # Parameters
@@ -362,8 +381,9 @@ Epoch 30/30:   Train Loss: 0.0000   Train Acc: 1.0000   Valid Acc: 0.9546
 If the input images are both standardized and pass the CLAHE operation, the network seems 
 to show the best performance. We will keep this as the default image preprocessing pipeline.  
 
-#### Learning Parameters Initializer
+### Learning Parameters Initializer
 Next we will have a look on the influence of the Variable initializer. 
+
 ````python
 # Parameters
 layers = lenet5_single_channel
@@ -419,14 +439,16 @@ Epoch 10/30:   Train Loss: 0.0103   Train Acc: 0.9951   Valid Acc: 0.9497
 Epoch 20/30:   Train Loss: 0.0135   Train Acc: 0.9924   Valid Acc: 0.9351
 Epoch 30/30:   Train Loss: 0.0000   Train Acc: 1.0000   Valid Acc: 0.9658
 ````
+
 ![][initializer]
 
 Well, it doesn't seem to make much of a difference which of the shown initializers we use.
 We'll keep the ``TruncatedNormal`` Initializer as standard for the following analyses.
 
 
-#### Learning Rates
+### Learning Rates
 One of the most important parameters is the learning rate of the optimizer. Let's have a look.
+
 ````python
 # Parameters
 layers = lenet5_single_channel
@@ -482,12 +504,13 @@ Epoch 30/30:   Train Loss: 0.0555   Train Acc: 0.9876   Valid Acc: 0.9190
 
 ![][learning]
 
-A learning rate that is too big, leads to no learning at all. It seems that a learning rate of ``0.001`` 
-makes a good starting choice. We will keep this rate for the rest of the project.
+A learning rate that is too big, leads to no learning at all. It seems that a learning rate of 
+``0.001`` makes a good starting choice. We will keep this rate for the rest of the project.
 
   
-#### Batch size
+### Batch size
 Next the mini batch size.
+
 ````python
 # Parameters
 layers = lenet5_single_channel
@@ -542,12 +565,13 @@ Epoch 30/30:   Train Loss: 0.0002   Train Acc: 1.0000   Valid Acc: 0.9454
 ````
 
 ![][batch]
-The smaller the batch size, the slower the learning. In this case, it doesn't seem to have that much of 
-an influence on the performance. We will stay with a batch size of 128, since it allows us a little bit 
-faster training.
+
+The smaller the batch size, the slower the learning. In this case, it doesn't seem to have 
+that much of an influence on the performance. We will stay with a batch size of 128, since 
+it allows us a little bit faster training.
 
 
-#### Dropout
+### Dropout
 Next, let's finally activate the dropout layers. As we can see above, dropout layers are 
 introduced in the 3rd and 4th Dense layer of the ``Lenet-5`` network. We will activate them 
 and have a look on the influence of the ``keep_prob`` probability. 
@@ -606,14 +630,16 @@ Epoch 10/30:   Train Loss: 1.2227   Train Acc: 0.8211   Valid Acc: 0.7821
 Epoch 20/30:   Train Loss: 1.0344   Train Acc: 0.8741   Valid Acc: 0.8454
 Epoch 30/30:   Train Loss: 0.9459   Train Acc: 0.8859   Valid Acc: 0.8587
 ````
+
 ![][dropout]
 
-A drop out rate of 50% gives us the best results. We'll set it as default for the rest of the project.
+A drop out rate of 50% gives us the best results. We'll set it as default for the rest of 
+the project.
 
 
-#### Convolution depth
-Next we will vary the depth of the convolution layers by a multiplicator. This will lead to much 
-more learning parameters. Let's see if it is worth.
+### Convolution depth
+Next we will leverage the depth of the convolution layers by a multiplicator. This will 
+lead to much more learning parameters. Let's see if it is worth.
 
 ````python
 # Parameters
@@ -713,19 +739,21 @@ Epoch 10/30:   Train Loss: 0.0217   Train Acc: 0.9998   Valid Acc: 0.9800
 Epoch 20/30:   Train Loss: 0.0165   Train Acc: 0.9994   Valid Acc: 0.9796
 Epoch 30/30:   Train Loss: 0.0104   Train Acc: 1.0000   Valid Acc: 0.9796
 ````
+
 ![][convdepth] 
 
-The network seems to benefit from the extended depth. However, the increase in performance is bought 
-by an explosion of paramaters that need to be trained. We will stay with the basic convolution depth, 
-since it shows a good performance with a fraction of parameters.
+The network seems to benefit from the extended depth. However, the increase in performance 
+is bought by an explosion of paramaters that need to be trained. We will stay with the basic
+convolution depth, since it shows a good performance with a fraction of parameters.
 
 
-#### Addational Convolution layer
-Let us investigate if an addtional 3rd convolution layer gives us a better compromise between parameter 
-and performance increase. The new layers are defined in ``layers.py``. 
-The difference of the ``lenet6a_layers`` and ``lenet6b_layers`` is the convolution filter (``5x5`` vs ``3x3``) 
-and the convolution depth (``400`` vs ``50``). They were chosen in a way that a comparable amount of parameters 
-are flattened before entering the Dense layers.
+### Addational Convolution layer
+Let us investigate if an addtional 3rd convolution layer gives us a better compromise between
+parameter and performance increase. The new layers are defined in [``layers.py``][layers]. 
+The difference of the [``lenet6a_layers``][lenet6a_layers] and 
+[``lenet6b_layers``][lenet6a_layers] is the convolution filter (``5x5`` vs ``3x3``) and the
+convolution depth (``400`` vs ``50``). They were chosen in a way that a comparable amount of
+parameters are flattened before entering the Dense layers.
 
 ````python
 # lenet6a_layers 
@@ -803,14 +831,18 @@ Epoch 10/30:   Train Loss: 0.2093   Train Acc: 0.9864   Valid Acc: 0.9546
 Epoch 20/30:   Train Loss: 0.1119   Train Acc: 0.9967   Valid Acc: 0.9617
 Epoch 30/30:   Train Loss: 0.0824   Train Acc: 0.9984   Valid Acc: 0.9662
 ````
+
 ![][convlayer] 
+
 The ``Lenet-5`` network still shows a better performance with fewer parameters. 
 
 
-#### Concatenating Layers
-Lastly we will have a look on the effect of concatenating layers as shown in [this paper][LecunPaper]. 
-The output of the 2nd and 3rd convolutional layers are concatenated and led into the Dense layer for
-classification.
+### Concatenating Layers
+Lastly we will have a look on the effect of concatenating layers as shown in 
+[Traffic sign recognition with multi-scale Convolutional Networks][LecunPaper]. The output 
+of the 2nd and 3rd convolutional layers are concatenated and led into the Dense layer for 
+classification. 
+
 ![][lecun]
 
 In this investigation we will use the LeNet-6a and LeNet-6b networks shown above to perform 
@@ -820,7 +852,7 @@ Concatenation of the outputs of
 - the 2nd and 3rd convolutional layers
 - the 2nd pooling and 3rd convolutional layer
 
-As always the layer defintions can be found in ``layers.py``.
+As always the layer defintions can be found in [``layers.py``][layers].
 
 
 ````python
@@ -949,10 +981,11 @@ Epoch 10/30:   Train Loss: 0.2171   Train Acc: 0.9918   Valid Acc: 0.9576
 Epoch 20/30:   Train Loss: 0.1192   Train Acc: 0.9975   Valid Acc: 0.9642
 Epoch 30/30:   Train Loss: 0.0886   Train Acc: 0.9991   Valid Acc: 0.9637
 ````
+
 ![][concat]
 
-As with the previous shown architectures the extended complexity does not lead to an additional 
-benefit in performance. 
+As with the previous shown architectures the extended complexity does not lead to an 
+additional benefit in performance. 
 
 
 ## 4. Training and testing of the final network.
@@ -991,7 +1024,7 @@ plot_pipeline("LeNet-5_Final", collector)
 ````
 ![][final]
 
-#### Evaluation of the test set
+### Evaluation of the test set
 ````python
 tf.reset_default_graph()
 with tf.Session(config=config) as session:
@@ -1026,51 +1059,80 @@ plot_predictions(x_test_new, y_test_new, top_k_probs, top_k_preds, sign_names)
 ````
 Accuracy on new test signs: 70.45%
 ````
-The accuracy is quite low compared to the original test set, since some of the images were chosen to be edge cases 
-and to challenge the network.
+
+The accuracy is quite low compared to the original test set, since some of the images were 
+chosen to be edge cases and to challenge the network.
+
 ![][predictions]
 
 ## Observations and improvements:
 - In some cases the network is able to correctly predict partly occluded or polluted signs.
-- The network does a good job if the signs are centered, viewed from the front and do fill a major part of the area.
-- It has its problems with signs that are located outside of the center, viewed from a perspective or are far away.
+- The network does a good job if the signs are centered, viewed from the front and do fill a 
+  major part of the area.
+- It has its problems with signs that are located outside of the center, viewed from a 
+  perspective or are far away.
 - The latter problem could be reduced by extending the training data with augmented data.
-- As can be seen by the miss prediction of the traffic signals sign, the network could enventually benefit from color 
-  information. The pipeline chosen in this project uses a colorless input. Seeing only gray the traffic lights 
-  share great similarity with the general caution sign.
-- The last two stop signs were taken from the paper ["Robust Physical-World Attacks on Deep Learning Visual 
-  Classification"][Attack] which handles the vulnerablity of neural networks to small-magnitude perturbations 
-  added to the input. The network poorly falls on one of these examples.
-- Although the network shows its uncertainty with the unknown images, a plausibility check using additional 
-  available information could lead to a greater robustness of the predictions.
+- As can be seen by the miss prediction of the traffic signals sign, the network could 
+  enventually benefit from color information. The pipeline chosen in this project uses a 
+  colorless input. Seeing only gray the traffic lights share great similarity with the general 
+  caution sign.
+- The last two stop signs were taken from the paper [Robust Physical-World Attacks on Deep 
+  Learning Visual Classification][Attack] which handles the vulnerablity of neural networks to small-magnitude perturbations added to the input. The network poorly falls on one of these 
+  examples.
+- Although the network shows its uncertainty with the unknown images, a plausibility check 
+  using additional available information could lead to a greater robustness of the predictions.
 
 
+## References
+[[1]][LenetPaper] Yann LeCun, Leon Bottou, Y. Bengio, and Patrick Haffner (1998). Gradient-Based
+Learning Applied to Document Recognition. *Proceedings of the IEEE* **86** (11): 2278-2324
 
-[LenetPaper]: http://yann.lecun.com/exdb/publis/pdf/lecun-98.pdf
-"http://yann.lecun.com/exdb/publis/pdf/lecun-98.pdf"
+[[2]][LecunPaper] Pierre Sermanet and Yann LeCun. Traffic sign recognition with multi-scale 
+Convolutional Networks. *International Joint Conference on Neural Networks, San Jose, CA, 
+United States*, 2011
+
+[[3]][Attack] Kevin Eykholt et al. Robust Physical-World Attacks on Deep Learning Models. 
+*CVPR 2018*
+
+
+[Course]: https://www.udacity.com/course/self-driving-car-engineer-nanodegree--nd013
+[Project]: https://github.com/udacity/CarND-Traffic-Sign-Classifier-Project
+[Dataset]: http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset
+[LenetPaper]: https://www.researchgate.net/publication/2985446_Gradient-Based_Learning_Applied_to_Document_Recognition
 [Clahe]: https://docs.opencv.org/master/d5/daf/tutorial_py_histogram_equalization.html
-"https://docs.opencv.org/master/d5/daf/tutorial_py_histogram_equalization.html" 
-[LecunPaper]: http://yann.lecun.com/exdb/publis/pdf/sermanet-ijcnn-11.pdf
-"http://yann.lecun.com/exdb/publis/pdf/sermanet-ijcnn-11.pdf"
-[Attack]: https://arxiv.org/abs/1707.08945
-" https://arxiv.org/abs/1707.08945"
+[LecunPaper]: https://www.researchgate.net/publication/224260345_Traffic_sign_recognition_with_multi-scale_Convolutional_Networks 
+[Attack]: https://arxiv.org/abs/1707.08945 
 
 
-[histogram]: ./images/histograms.png "Histograms"
-[samples]: ./images/class_samples.png "Traffic sign classes"
-[preprocessing]: ./images/class_samples_preprocessed.png "Preprocessing"
-[lenet5]: ./images/LeNet-5.png "LeNet-5"
-[basic]: ./images/LeNet-5_Basic.png "Basic LeNet-5"
-[optimizer]: ./images/LeNet-5_Optimizer.png "Optimizer"
-[normalization]: ./images/LeNet-5_Normalization.png "Normalization"
-[initializer]: ./images/LeNet-5_Initializer.png "Initializer"
-[learning]: ./images/LeNet-5_Learning_Rates.png "Learning Rates"
-[batch]: ./images/LeNet-5_Batch_Sizes.png "Batch size"
-[dropout]: ./images/LeNet_Dropout.png "Dropout"
-[convdepth]: ./images/LeNet-5_Extendended_Conv_Depth.png "Convolution Depth"
-[convlayer]: ./images/LeNet_Additional_Layers.png "Additional Convolution Layer"
-[lecun]: ./images/LeCun.jpg "Traffic Sign Recognition with Multi-Scale Convolutional Networks"
-[concat]: ./images/LeNet_Concat.png "Concatenating Layers"
-[final]: ./images/LeNet-5_Final.png "Final Network"
-[newimages]: ./images/new_signs.png "New Signs"
-[predictions]: ./images/predictions.png "Predictions"
+[notebook]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/blob/master/Traffic_Sign_Classifier.ipynb
+[utilities]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/blob/master/utilities.py
+[model]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/blob/master/model.py
+[modelclass]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/blob/master/model.py#L177
+[layers]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/blob/master/layers.py
+[lenet5_rgb]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/blob/master/layers.py#L3
+[model_compile]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/blob/master/model.py#L185
+[model_train]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/blob/master/model.py#L207
+[model_evaluate]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/blob/master/model.py#L345
+[preprocess]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/blob/master/utilities.py#L89
+[lenet5_single_channel]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/blob/master/layers.py#L45
+[lenet6a_layers]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/blob/master/layers.py#L87
+[lenet6b_layers]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/blob/master/layers.py#L135
+
+[histogram]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/histograms.png "Histograms"
+[samples]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/class_samples.png "Traffic sign classes"
+[preprocessing]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/class_samples_preprocessed.png "Preprocessing"
+[lenet5]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/LeNet-5.png "LeNet-5"
+[basic]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/LeNet-5_Basic.png "Basic LeNet-5"
+[optimizer]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/LeNet-5_Optimizer.png "Optimizer"
+[normalization]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/LeNet-5_Normalization.png "Normalization"
+[initializer]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/LeNet-5_Initializer.png "Initializer"
+[learning]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/LeNet-5_Learning_Rates.png "Learning Rates"
+[batch]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/LeNet-5_Batch_Sizes.png "Batch size"
+[dropout]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/LeNet_Dropout.png "Dropout"
+[convdepth]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/LeNet-5_Extendended_Conv_Depth.png "Convolution Depth"
+[convlayer]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/LeNet_Additional_Layers.png "Additional Convolution Layer"
+[lecun]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/LeCun.jpg "Traffic Sign Recognition with Multi-Scale Convolutional Networks"
+[concat]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/LeNet_Concat.png "Concatenating Layers"
+[final]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/LeNet-5_Final.png "Final Network"
+[newimages]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/new_signs.png "New Signs"
+[predictions]: https://github.com/pabaq/CarND-Traffic-Sign-Classifier/raw/master/images/predictions.png "Predictions"
