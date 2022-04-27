@@ -1,12 +1,12 @@
 This project is part of Udacity's [Self-Driving-Car Nanodegree][Course]. The project 
 resources and build instructions can be found [here][Project].
 
-## Traffic sign classification with a convolutional neural network build with tensorflow
+## Traffic signs classification with CNN
 
-In this project we will train and validate several CNN architectures with the goal to 
-classify traffic sign images using the [German Traffic Sign Dataset][Dataset]. After the 
-training, we will try out the best architecture on random images of traffic signs that we 
-collected from the web.
+In this project we will train and validate several CNN architectures with the goal of 
+classifying traffic sign images using the [German Traffic Sign Dataset][Dataset]. 
+Subsequently, we will try out the best architecture on random images of traffic signs 
+that we collected from the web.
 
 The complete code can be found in the following modules:
 
@@ -16,26 +16,29 @@ The complete code can be found in the following modules:
   investigation of several network architectures and parameter variations more comfortable.
 - [``layers.py``][layers]: the layer defintions of the investigated networks. 
 
-It is also possible to walk through the project using the [Traffic_Sign_Classifier jupyter 
+It is also possible to walk through the project using the [Traffic Sign Classifier jupyter 
 notebook][notebook] in this repository.
 
 The project consists of the following steps:
 
 1. Exploration of the available data set.
-2. Initial investigation with the basic ``LeNet-5`` network.
-3. Investigation of the influence of several parameter variations and architectures on 
-   the network's performance.
+2. Initial investigation of the basic ``LeNet-5`` network.
+3. Investigation of the influence of several model (hyper) parameters and model 
+   architectures
 4. Training and testing of the final network.
-5. Predictions on new traffic sign images collected from the internet.
+5. Predictions on unknown traffic sign images collected from the internet.
 
-## 1. Exploration of the available data set
-The distributions of the [German Traffic Sign's][Dataset] training, validation and test data
-are comparable, however, they are far from being uniform. Some classes are present much 
-more frequent then others.
+## Data exploration
+The distributions of the training, validation and test data sets of the [German Traffic 
+Sign Dataset][Dataset] are comparable, however, they are far from being uniform. 
+Some classes are present much more frequent then others.
 
 ![][histogram]
 
-Let's have a look on the traffic sign classes.
+Let's have a look on the traffic sign images and classes. The images are of shape 32x32 and 
+in the RGB color space. They were taken under varying light conditions. Some can easily be 
+recognized, others are even hard to notice. We will preprocess these images in one of the 
+subsequent investigations pipelines.
 
 ![][samples]
 
@@ -85,15 +88,11 @@ Let's have a look on the traffic sign classes.
 |41       |  End of no passing
 |42       |  End of no passing by vehicles over 3.5 metric ...
 
-The images are of shape 32x32 in RGB color. They were taken under varying light 
-conditions. Some can easily be recognized, others are even hard to notice. We will 
-preprocess these images in one of the subsequent investigations pipelines.
 
-
-## 2. Initial investigation with the basic ``LeNet-5`` network
+## The LeNet-5 network
 ![][lenet5]
 
-The ``LeNet-5`` network presented in [Gradient-Based Learning Applied to Document 
+The basic ``LeNet-5`` network presented in [Gradient-Based Learning Applied to Document 
 Recognition][LenetPaper] by Yann LeCun et al. is used as a starting point for the 
 following investigations. We will build it by making use of the [``Model``][modelclass] 
 class defined in [``model.py``][model] and the [``lenet5_rgb``][lenet5_rgb] layers defined 
@@ -149,7 +148,7 @@ It will take as input an image of shape ``32 x 32 x 3`` and its last layer will 
 43 traffic traffic sign ``logits``.
 
 The implemented methods of the [``Model``][model] class allow the [``compiling``][model_compile],
-[``training``][model_train] and subsequent [``evaluation``][model_evaluate] of the network. Let`s
+[``training``][model_train] and subsequent [``evaluation``][model_evaluate] of the network. Let's
 build basic ``LeNet-5`` and train it on the traffic sign samples with the folowing first set of
 parameters:
 
@@ -194,10 +193,10 @@ Epoch 30/30:   Train Loss: 2.5000   Train Acc: 0.3713   Valid Acc: 0.3472
 
 ![][basic]
 
-It can be seen that the Gradient Descent Optimizer makes a quite slow progress. 
-Let's go for the parameter variations.
+It can be seen that the Gradient Descent Optimizer makes a quite slow progress.
+Next, let us check how the model behaves by varying some of its (hyper) parameters.
 
-## 3. Investigation of several parameter effects on the network's performance
+## Model parameter variations
 
 ### Optimizers
 In the first investigation we will vary the optimizers using ``Gradient Descent``, 
@@ -255,7 +254,7 @@ The ``Adam`` optimizer is doing a pretty good job. We will use it as the default
 optimizer for the rest of the project. 
 
 ### Input Data Normalization
-Next let`s preprocess the input data. The function [``preprocess``][preprocess] in 
+Next let's preprocess the input data. The function [``preprocess``][preprocess] in 
 [``utilities.py``][utilities] does this job for us. It performs scaling and contrast limited 
 adaptive histogram equalization ([CLAHE][Clahe]) on the input images.
 
@@ -290,7 +289,7 @@ def preprocess(x, scale='std', clahe=True):
     return x
 ````
 
-The output on the class samples shown above looks as follows: 
+The output on the class samples shown above looks as follows 
 
 ![][preprocessing]
 
@@ -988,7 +987,7 @@ As with the previous shown architectures the extended complexity does not lead t
 additional benefit in performance. 
 
 
-## 4. Training and testing of the final network.
+## The final network
 Since the investigated architectures did not show a benefit over the ``LeNet-5`` network, 
 we will use the latter with the adjusted parameters shown in the previous sections for the final 
 training and testing. The final training will be performed for 50 epochs. 
@@ -1039,7 +1038,7 @@ Accuracy: 0.9583
 
 The evalution of the unseen test set leads to an accuracy of **95.83%**.
 
-## 5. Predictions on new traffic sign images collected from the internet.
+## Predictions on unknown images
 Now let's see how the network performs on traffic sign images gathered from in the internet. 
 
 ![][newimages]
@@ -1065,7 +1064,7 @@ chosen to be edge cases and to challenge the network.
 
 ![][predictions]
 
-## Observations and improvements:
+## Observations and improvements
 - In some cases the network is able to correctly predict partly occluded or polluted signs.
 - The network does a good job if the signs are centered, viewed from the front and do fill a 
   major part of the area.
