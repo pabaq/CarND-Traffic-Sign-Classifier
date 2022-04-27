@@ -1,7 +1,7 @@
 This project is part of Udacity's [Self-Driving-Car Nanodegree][Course]. The project 
 resources and build instructions can be found [here][Project].
 
-## Traffic signs classification with CNN
+## Traffic sign classification with CNN
 
 In this project we will train and validate several CNN architectures with the goal of 
 classifying traffic sign images using the [German Traffic Sign Dataset][Dataset]. 
@@ -196,7 +196,7 @@ Epoch 30/30:   Train Loss: 2.5000   Train Acc: 0.3713   Valid Acc: 0.3472
 It can be seen that the Gradient Descent Optimizer makes a quite slow progress.
 Next, let us check how the model behaves by varying some of its (hyper) parameters.
 
-## Model parameter variations
+## Model parameter analysis
 
 ### Optimizers
 In the first investigation we will vary the optimizers using ``Gradient Descent``, 
