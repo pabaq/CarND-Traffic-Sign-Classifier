@@ -1,7 +1,7 @@
 This project is part of Udacity's [Self-Driving-Car Nanodegree][Course]. The project 
 resources and build instructions can be found [here][Project].
 
-## Traffic sign classification with CNN
+## Traffic sign classification with a CNN
 
 In this project we will train and validate several CNN architectures with the goal of 
 classifying traffic sign images using the [German Traffic Sign Dataset][Dataset]. 
@@ -28,7 +28,7 @@ The project consists of the following steps:
 4. Training and testing of the final network.
 5. Predictions on unknown traffic sign images collected from the internet.
 
-## Data exploration
+## Exploration of the available data set
 The distributions of the training, validation and test data sets of the [German Traffic 
 Sign Dataset][Dataset] are comparable, however, they are far from being uniform. 
 Some classes are present much more frequent then others.
@@ -162,7 +162,7 @@ parameters:
 
 We will vary these parameters in the subsequent analyses to see their effects on the network's performance.
 
-````python
+```python
 from model import Model
 from utilities import Collector, plot_pipeline
 
@@ -184,7 +184,7 @@ loss, train_acc, valid_acc = lenet.train(
 collector = Collector()
 collector.collect(lenet, loss, train_acc, valid_acc)
 plot_pipeline("LeNet-5_Basic", collector)
-````
+```
 ```
 Epoch 10/30:   Train Loss: 3.7002   Train Acc: 0.0498   Valid Acc: 0.0451  
 Epoch 20/30:   Train Loss: 3.1954   Train Acc: 0.1768   Valid Acc: 0.1567  
@@ -202,7 +202,7 @@ Next, let us check how the model behaves by varying some of its (hyper) paramete
 In the first investigation we will vary the optimizers using ``Gradient Descent``, 
 ``Adam`` and ``Adagrad``.
 
-````python
+```python
 # Parameters
 layers = lenet5_rgb
 initializer = 'RandomNormal'
@@ -230,7 +230,7 @@ for optimizer in optimizers:
     collector.collect(lenet, loss, train_acc, valid_acc)
 
 plot_pipeline("LeNet-5_Optimizer", collector)
-````
+```
 ```
 Optimizer = GradientDescent
 Epoch 10/30:   Train Loss: 3.6991   Train Acc: 0.0502   Valid Acc: 0.0451
@@ -258,7 +258,7 @@ Next let's preprocess the input data. The function [``preprocess``][preprocess] 
 [``utilities.py``][utilities] does this job for us. It performs scaling and contrast limited 
 adaptive histogram equalization ([CLAHE][Clahe]) on the input images.
 
-````python
+```python
 def preprocess(x, scale='std', clahe=True):
     """ Preprocess the input features.
 
@@ -287,7 +287,7 @@ def preprocess(x, scale='std', clahe=True):
         x = (x - mean) / (std + np.finfo(float).eps)
 
     return x
-````
+```
 
 The output on the class samples shown above looks as follows 
 
@@ -299,7 +299,7 @@ preprocessing parameters on the performance of the network. Since the output of 
 operation is a gray image, we will introduce [``lenet5_single_channel``][lenet5_single_channel]
 layers that can handle single channel input images. All other layer parameters stay the same. 
 
-````python
+```python
 # Parameters
 initializer = 'RandomNormal'
 optimizer = 'Adam'
@@ -347,8 +347,8 @@ for kwargs, layers in zip(normilization_kwargs, lenet_layers):
     collector.collect(lenet, loss, train_acc, valid_acc, **kwargs)
 
 plot_pipeline("LeNet-5_Normalization", collector)
-````
-````
+```
+```
 preprocess(x, scale=None, clahe=False)
 Epoch 10/30:   Train Loss: 0.0853   Train Acc: 0.9827   Valid Acc: 0.8816
 Epoch 20/30:   Train Loss: 0.0374   Train Acc: 0.9872   Valid Acc: 0.8710
@@ -373,7 +373,7 @@ preprocess(x, scale=std, clahe=True)
 Epoch 10/30:   Train Loss: 0.0177   Train Acc: 0.9947   Valid Acc: 0.9415
 Epoch 20/30:   Train Loss: 0.0033   Train Acc: 0.9964   Valid Acc: 0.9467
 Epoch 30/30:   Train Loss: 0.0000   Train Acc: 1.0000   Valid Acc: 0.9546
-````
+```
 
 ![][normalization]
 
@@ -383,7 +383,7 @@ to show the best performance. We will keep this as the default image preprocessi
 ### Learning Parameters Initializer
 Next we will have a look on the influence of the Variable initializer. 
 
-````python
+```python
 # Parameters
 layers = lenet5_single_channel
 initializers = ["RandomNormal",
@@ -416,7 +416,7 @@ for initializer in initializers:
     collector.collect(lenet, loss, train_acc, valid_acc)
 
 plot_pipeline("LeNet-5_Initializer", collector)
-````
+```
 ```
 Initializer = RandomNormal
 Epoch 10/30:   Train Loss: 0.0179   Train Acc: 0.9862   Valid Acc: 0.9179
@@ -437,7 +437,7 @@ Initializer = XavierNormal
 Epoch 10/30:   Train Loss: 0.0103   Train Acc: 0.9951   Valid Acc: 0.9497
 Epoch 20/30:   Train Loss: 0.0135   Train Acc: 0.9924   Valid Acc: 0.9351
 Epoch 30/30:   Train Loss: 0.0000   Train Acc: 1.0000   Valid Acc: 0.9658
-````
+```
 
 ![][initializer]
 
@@ -448,7 +448,7 @@ We'll keep the ``TruncatedNormal`` Initializer as standard for the following ana
 ### Learning Rates
 One of the most important parameters is the learning rate of the optimizer. Let's have a look.
 
-````python
+```python
 # Parameters
 layers = lenet5_single_channel
 initializer = 'TruncatedNormal'
@@ -478,8 +478,8 @@ for learning_rate in learning_rates:
     collector.collect(lenet, loss, train_acc, valid_acc)
 
 plot_pipeline("LeNet-5_Learning_Rates", collector)
-````
-````
+```
+```
 Learning rate = 0.1
 Epoch 10/30:   Train Loss: 3.4891   Train Acc: 0.0569   Valid Acc: 0.0544
 Epoch 20/30:   Train Loss: 3.4905   Train Acc: 0.0552   Valid Acc: 0.0544
@@ -499,7 +499,7 @@ Learning rate = 0.0001
 Epoch 10/30:   Train Loss: 0.2365   Train Acc: 0.9398   Valid Acc: 0.8658
 Epoch 20/30:   Train Loss: 0.1028   Train Acc: 0.9768   Valid Acc: 0.9045
 Epoch 30/30:   Train Loss: 0.0555   Train Acc: 0.9876   Valid Acc: 0.9190
-````
+```
 
 ![][learning]
 
@@ -510,7 +510,7 @@ A learning rate that is too big, leads to no learning at all. It seems that a le
 ### Batch size
 Next the mini batch size.
 
-````python
+```python
 # Parameters
 layers = lenet5_single_channel
 initializer = 'TruncatedNormal'
@@ -540,8 +540,8 @@ for batch_size in batch_sizes:
     collector.collect(lenet, loss, train_acc, valid_acc)
 
 plot_pipeline("LeNet-5_Batch_Sizes", collector)
-````
-````
+```
+```
 Batch size = 32
 Epoch 10/30:   Train Loss: 0.0174   Train Acc: 0.9965   Valid Acc: 0.9562
 Epoch 20/30:   Train Loss: 0.0132   Train Acc: 0.9974   Valid Acc: 0.9542
@@ -561,7 +561,7 @@ Batch size = 256
 Epoch 10/30:   Train Loss: 0.0248   Train Acc: 0.9940   Valid Acc: 0.9308
 Epoch 20/30:   Train Loss: 0.0008   Train Acc: 1.0000   Valid Acc: 0.9474
 Epoch 30/30:   Train Loss: 0.0002   Train Acc: 1.0000   Valid Acc: 0.9454
-````
+```
 
 ![][batch]
 
@@ -575,7 +575,7 @@ Next, let's finally activate the dropout layers. As we can see above, dropout la
 introduced in the 3rd and 4th Dense layer of the ``Lenet-5`` network. We will activate them 
 and have a look on the influence of the ``keep_prob`` probability. 
 
-````python
+```python
 # Parameters
 layers = lenet5_single_channel
 initializer = 'TruncatedNormal'
@@ -607,8 +607,8 @@ for keep_prob in keep_probs:
     collector.collect(lenet, loss, train_acc, valid_acc)
 
 plot_pipeline("LeNet_Dropout", collector)
-````
-````
+```
+```
 keep_prob = 1.0
 Epoch 10/30:   Train Loss: 0.0134   Train Acc: 0.9970   Valid Acc: 0.9515
 Epoch 20/30:   Train Loss: 0.0082   Train Acc: 0.9979   Valid Acc: 0.9463
@@ -628,7 +628,7 @@ keep_prob = 0.25
 Epoch 10/30:   Train Loss: 1.2227   Train Acc: 0.8211   Valid Acc: 0.7821
 Epoch 20/30:   Train Loss: 1.0344   Train Acc: 0.8741   Valid Acc: 0.8454
 Epoch 30/30:   Train Loss: 0.9459   Train Acc: 0.8859   Valid Acc: 0.8587
-````
+```
 
 ![][dropout]
 
@@ -640,7 +640,7 @@ the project.
 Next we will leverage the depth of the convolution layers by a multiplicator. This will 
 lead to much more learning parameters. Let's see if it is worth.
 
-````python
+```python
 # Parameters
 initializer = 'TruncatedNormal'
 optimizer = 'Adam'
@@ -716,8 +716,8 @@ for multi in multiplicators:
                       multi=multi)
 
 plot_pipeline("LeNet-5_Extendended_Conv_Depth", collector)
-````
-````
+```
+```
 depth multiplicator = 1
 Epoch 10/30:   Train Loss: 0.2535   Train Acc: 0.9851   Valid Acc: 0.9601
 Epoch 20/30:   Train Loss: 0.1420   Train Acc: 0.9959   Valid Acc: 0.9737
@@ -737,7 +737,7 @@ depth multiplicator = 9
 Epoch 10/30:   Train Loss: 0.0217   Train Acc: 0.9998   Valid Acc: 0.9800
 Epoch 20/30:   Train Loss: 0.0165   Train Acc: 0.9994   Valid Acc: 0.9796
 Epoch 30/30:   Train Loss: 0.0104   Train Acc: 1.0000   Valid Acc: 0.9796
-````
+```
 
 ![][convdepth] 
 
@@ -754,7 +754,7 @@ The difference of the [``lenet6a_layers``][lenet6a_layers] and
 convolution depth (``400`` vs ``50``). They were chosen in a way that a comparable amount of
 parameters are flattened before entering the Dense layers.
 
-````python
+```python
 # lenet6a_layers 
 ...
 # 5 x 5 x 16
@@ -778,8 +778,8 @@ Conv2d(name="conv3",
 # 3 x 3 x 50 = 450
 Flatten(size=450),
 ...
-````
-````python
+```
+```python
 # Parameters
 initializer = 'TruncatedNormal'
 optimizer = 'Adam'
@@ -813,8 +813,8 @@ for name, layers in zip(names, layers_list):
     collector.collect(model, loss, train_acc, valid_acc)
 
 plot_pipeline("LeNet_Additional_Layers", collector)
-````
-````
+```
+```
 LeNet-5
 Epoch 10/30:   Train Loss: 0.2538   Train Acc: 0.9859   Valid Acc: 0.9626
 Epoch 20/30:   Train Loss: 0.1423   Train Acc: 0.9955   Valid Acc: 0.9680
@@ -829,7 +829,7 @@ LeNet-6b
 Epoch 10/30:   Train Loss: 0.2093   Train Acc: 0.9864   Valid Acc: 0.9546
 Epoch 20/30:   Train Loss: 0.1119   Train Acc: 0.9967   Valid Acc: 0.9617
 Epoch 30/30:   Train Loss: 0.0824   Train Acc: 0.9984   Valid Acc: 0.9662
-````
+```
 
 ![][convlayer] 
 
@@ -854,7 +854,7 @@ Concatenation of the outputs of
 As always the layer defintions can be found in [``layers.py``][layers].
 
 
-````python
+```python
 # Concatenation of 2nd and 3rd convolutional layers 
 ...
 # 14 x 14 x 6
@@ -910,8 +910,8 @@ Conv2d(name="conv3",
 Concat(layers=["pool2", "conv3"]),
 # 800
 ...
-````
-````python
+```
+```python
 # Parameters
 initializer = 'TruncatedNormal'
 optimizer = 'Adam'
@@ -953,8 +953,8 @@ for name, layers in zip(names, layers_list):
     collector.collect(model, loss, train_acc, valid_acc)
 
 plot_pipeline("LeNet_Concat", collector)
-````
-````
+```
+```
 LeNet-5
 Epoch 10/30:   Train Loss: 0.2559   Train Acc: 0.9850   Valid Acc: 0.9610
 Epoch 20/30:   Train Loss: 0.1449   Train Acc: 0.9961   Valid Acc: 0.9723
@@ -979,7 +979,7 @@ LeNet-6b_concat_p2c3
 Epoch 10/30:   Train Loss: 0.2171   Train Acc: 0.9918   Valid Acc: 0.9576
 Epoch 20/30:   Train Loss: 0.1192   Train Acc: 0.9975   Valid Acc: 0.9642
 Epoch 30/30:   Train Loss: 0.0886   Train Acc: 0.9991   Valid Acc: 0.9637
-````
+```
 
 ![][concat]
 
@@ -987,12 +987,12 @@ As with the previous shown architectures the extended complexity does not lead t
 additional benefit in performance. 
 
 
-## The final network
+## Training and testing of the final network
 Since the investigated architectures did not show a benefit over the ``LeNet-5`` network, 
 we will use the latter with the adjusted parameters shown in the previous sections for the final 
 training and testing. The final training will be performed for 50 epochs. 
 
-````python
+```python
 # Parameters
 initializer = 'TruncatedNormal'
 optimizer = 'Adam'
@@ -1020,30 +1020,30 @@ loss, train_acc, valid_acc = lenet.train(
 collector = Collector()
 collector.collect(lenet, loss, train_acc, valid_acc)
 plot_pipeline("LeNet-5_Final", collector)
-````
+```
 ![][final]
 
 ### Evaluation of the test set
-````python
+```python
 tf.reset_default_graph()
 with tf.Session(config=config) as session:
     lenet = Model()
     lenet.restore(checkpoint="models/LeNet-5_Final.ckpt-47")
     acc = lenet.evaluate(preprocess(x_test), y_test)
     print(f"Accuracy: {acc:.4f}")
-````
-````
+```
+```
 Accuracy: 0.9583
-````
+```
 
 The evalution of the unseen test set leads to an accuracy of **95.83%**.
 
-## Predictions on unknown images
+## Predictions on unknown samples
 Now let's see how the network performs on traffic sign images gathered from in the internet. 
 
 ![][newimages]
 
-````python
+```python
 # Predict new test images
 tf.reset_default_graph()
 with tf.Session(config=config) as session:
@@ -1054,10 +1054,10 @@ with tf.Session(config=config) as session:
     top_k_probs, top_k_preds = lenet.predict( preprocess(x_test_new), k=3)
 
 plot_predictions(x_test_new, y_test_new, top_k_probs, top_k_preds, sign_names)
-````
-````
+```
+```
 Accuracy on new test signs: 70.45%
-````
+```
 
 The accuracy is quite low compared to the original test set, since some of the images were 
 chosen to be edge cases and to challenge the network.
